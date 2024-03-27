@@ -12,7 +12,6 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 
         split_text = node.text.split(delimiter, maxsplit = 2)
         if len(split_text) == 1:
-            node.text_type = text_type_text
             new_nodes.append(node)
             continue
         if len(split_text) != 3:
@@ -27,7 +26,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
         new_nodes.append(TextNode(split_text[1], text_type))
         if split_text[2] != '':
             sub_nodes = split_nodes_delimiter(
-                [TextNode(split_text[2], node.text_type)],
+                [TextNode(split_text[2], text_type_text)],
                 delimiter=delimiter,
                 text_type=text_type)
             new_nodes.extend(sub_nodes)
@@ -62,7 +61,8 @@ def split_nodes_image(old_nodes):
                     text_type_image,
                     images[image_index][1])
                 )
-        new_nodes.append(TextNode(split_text[-1], text_type_text))
+        if split_text[-1] != '':
+            new_nodes.append(TextNode(split_text[-1], text_type_text))
 
     return new_nodes
 
@@ -82,7 +82,7 @@ def split_nodes_links(old_nodes):
         if len(split_text) == 1:
             new_nodes.append(node)
             continue
-        
+
         #pylint: disable=locally-disabled, consider-using-enumerate
         for link_index in range(len(links)):
             new_nodes.append(
@@ -94,6 +94,16 @@ def split_nodes_links(old_nodes):
                     text_type_link,
                     links[link_index][1])
                 )
-        new_nodes.append(TextNode(split_text[-1], text_type_text))
+        if split_text[-1] != '':
+            new_nodes.append(TextNode(split_text[-1], text_type_text))
 
     return new_nodes
+
+def text_to_textnodes(text):
+    textnodes = [TextNode(text, text_type_text)]
+    textnodes = split_nodes_image(textnodes)
+    textnodes = split_nodes_links(textnodes)
+    textnodes = split_nodes_delimiter(textnodes, "**", text_type_bold)
+    textnodes = split_nodes_delimiter(textnodes, "*", text_type_italic)
+    textnodes = split_nodes_delimiter(textnodes, "`", text_type_code)
+    return textnodes

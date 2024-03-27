@@ -13,7 +13,7 @@ class TestSplitTextNode(unittest.TestCase):
             TextNode("code block", text_type_code),
             TextNode(" word", text_type_text)
         ]
-        self.assertEqual(new_nodes, result)
+        self.assertListEqual(result, new_nodes)
     
     def test_split_nodes_delimiter_bold_double(self):
         node = TextNode(
@@ -60,6 +60,25 @@ class TestSplitTextNode(unittest.TestCase):
                 TextNode(". Split it please.", text_type_text)
             ],
             split_nodes_links([node])
+        )
+    #@unittest.SkipTest
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an *italic* word and a `code block` and an ![image](https://i.imgur.com/zjjcJKZ.png) and a [link](https://boot.dev)"
+        self.maxDiff = None
+        self.assertListEqual(
+            [
+                TextNode("This is ", text_type_text),
+                TextNode("text", text_type_bold),
+                TextNode(" with an ", text_type_text),
+                TextNode("italic", text_type_italic),
+                TextNode(" word and a ", text_type_text),
+                TextNode("code block", text_type_code),
+                TextNode(" and an ", text_type_text),
+                TextNode("image", text_type_image, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and a ", text_type_text),
+                TextNode("link", text_type_link, "https://boot.dev"),
+            ],
+            text_to_textnodes(text)
         )
 
 if __name__ == "__main__":
