@@ -47,6 +47,10 @@ def split_nodes_image(old_nodes):
             temp_image_tag
             ).split(temp_image_tag)
 
+        if len(split_text) == 1:
+            new_nodes.append(node)
+            continue
+
         #pylint: disable=locally-disabled, consider-using-enumerate
         for image_index in range(len(images)):
             new_nodes.append(
@@ -75,6 +79,10 @@ def split_nodes_links(old_nodes):
             temp_link_tag
             ).split(temp_link_tag)
 
+        if len(split_text) == 1:
+            new_nodes.append(node)
+            continue
+        
         #pylint: disable=locally-disabled, consider-using-enumerate
         for link_index in range(len(links)):
             new_nodes.append(
