@@ -1,13 +1,11 @@
 from leafnode import LeafNode
 
-text_types = {
-    "text": "text",
-    "bold": "bold",
-    "italic": "italic",
-    "code": "code",
-    "link": "link",
-    "image": "image"
-}
+text_type_text = "text"
+text_type_bold = "bold"
+text_type_italic = "italic"
+text_type_code = "code"
+text_type_link = "link"
+text_type_image = "image"
 
 class TextNode:
     def __init__(self, text, text_type, url):
@@ -26,18 +24,21 @@ class TextNode:
 
 def text_node_to_html_node(text_node: TextNode):
 
-    match text_node.text_type:
-        case text_types.get("text"):
-            return LeafNode(None, text_node.text)
-        case text_types.get("bold"):
-            return LeafNode('b', text_node.text)
-        case text_types.get("italic"):
-            return LeafNode('i', text_node.text)
-        case text_types.get("code"):
-            return LeafNode("code", text_node.text)
-        case text_types.get("link"):
-            return LeafNode('a', text_node.text, {"href": text_node.url})
-        case text_types.get("image"):
-            return LeafNode("img", '', {"src": text_node.url, "alt": text_node.text})
-        case _:
-            raise ValueError(f"Cannot convert TextNode of text_type: {text_node.text_type}")
+    if text_node.text_type == text_type_text:
+        return LeafNode(None, text_node.text)
+    elif text_node.text_type == text_type_bold:
+        return LeafNode('b', text_node.text)
+    elif text_node.text_type == text_type_italic:
+        return LeafNode('i', text_node.text)
+    elif text_node.text_type == text_type_code:
+        return LeafNode("code", text_node.text)
+    elif text_node.text_type == text_type_link:
+        return LeafNode('a', text_node.text, {"href": text_node.url})
+    elif text_node.text_type == text_type_image:
+        return LeafNode("img", '', {"src": text_node.url, "alt": text_node.text})
+    else:
+        raise ValueError(f"Cannot convert TextNode of text_type: {text_node.text_type}")
+
+
+def split_nodes_delimiter(old_nodes, delimiter, text_type):
+    pass
