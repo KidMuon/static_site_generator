@@ -8,7 +8,7 @@ text_type_link = "link"
 text_type_image = "image"
 
 class TextNode:
-    def __init__(self, text, text_type, url):
+    def __init__(self, text, text_type, url = None):
         self.text = text
         self.text_type = text_type
         self.url = url
@@ -41,4 +41,34 @@ def text_node_to_html_node(text_node: TextNode):
 
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
-    pass
+
+    new_nodes = []
+
+    for node in old_nodes:
+        if not isinstance(node, TextNode):
+            new_nodes.append(node)
+            continue
+
+        split_text = node.text.split(delimiter, maxsplit = 2)
+        if len(split_text) == 1:
+            node.text_type = text_type_text
+            new_nodes.append(node)
+            continue
+        if len(split_text) != 3:
+            # pylint: disable=locally-disabled, broad-exception-raised
+            raise Exception(f"""
+            No matching {delimiter} found in: '{node.text}'.
+            This is invalid markdown syntax
+            """)
+        
+        if split_text[0] != '':
+            new_nodes.append(TextNode(split_text[0], text_type_text))
+        new_nodes.append(TextNode(split_text[1], text_type))
+        if split_text[2] != '':
+            sub_nodes = split_nodes_delimiter(
+                [TextNode(split_text[2], node.text_type)],
+                delimiter=delimiter,
+                text_type=text_type)
+            new_nodes.extend(sub_nodes)
+
+    return new_nodes
