@@ -1,4 +1,7 @@
 import re
+from parentnode import ParentNode
+from inline_markdown import text_to_textnodes
+from textnode import text_node_to_html_node
 
 block_type_paragraph = "paragraph"
 block_type_heading = "heading"
@@ -60,7 +63,8 @@ def _block_is_unordered_list(block):
     return unordered_list
 
 def _block_is_ordered_list(block):
-    # Unordered list lines all start with '* ' or '- '
+    # ordered list lines must all start with #.
+    # They must start at 1 and increment by 1
     lines = block.split('\n')
     ordered_list = True
     line_number = 1
@@ -70,3 +74,62 @@ def _block_is_ordered_list(block):
             break
         line_number += 1
     return ordered_list
+
+def block_paragraph_to_html(markdown_block):
+    children = _make_block_children(markdown_block, block_type_paragraph)
+    return ParentNode("p", children)
+
+def block_heading_to_html(markdown_block):
+    children = _make_block_children(markdown_block, block_type_heading)
+    heading_level = len(markdown_block) - len(markdown_block.lstrip('#'))
+    return ParentNode(f"h{heading_level}", children)
+
+def block_code_to_html(markdown_block):
+    children = _make_block_children(markdown_block, block_type_code)
+    return ParentNode("pre", [ParentNode("code", children)])
+
+def block_quote_to_html(markdown_block):
+    children = _make_block_children(markdown_block, block_type_quote)
+    return ParentNode("blockquote", children)
+
+def block_unordered_list_to_html(markdown_block):
+    children = _make_block_children(markdown_block, block_type_unordered_list)
+    return ParentNode("ul", children)
+
+def block_ordered_list_to_html(markdown_block):
+    children = _make_block_children(markdown_block, block_type_ordered_list)
+    return ParentNode("ol", children)
+
+def _make_block_children(markdown_block, block_type = None):
+    
+    if block_type == block_type_heading:
+        markdown_block = markdown_block.lstrip("# ")
+
+    if block_type == block_type_code:
+        markdown_block = markdown_block.strip("```")
+            
+    child_textnodes = []
+    for line in markdown_block.split('\n'):
+        if block_type == block_type_quote:
+            line = line.lstrip(">")
+        if block_type == block_type_unordered_list:
+            pattern_to_replace = re.search(r'^[*-]{1} ', line).group(0)
+            line = line.replace(pattern_to_replace, '')
+        if block_type == block_type_ordered_list:
+            pattern_to_replace = re.search(r'^\d+\.', line).group(0)
+            line = line.replace(pattern_to_replace, '')
+        child_textnodes.extend(text_to_textnodes(line))
+    
+    child_leafnodes = []
+    for child_textnode in child_textnodes:
+        child_leafnodes.append(text_node_to_html_node(child_textnode))
+    
+    res = child_leafnodes
+
+    wrapped_child_leafnodes = []
+    if block_type == block_type_ordered_list or block_type == block_type_unordered_list:
+        for leafnode in child_leafnodes:
+            wrapped_child_leafnodes.append(ParentNode("li", [leafnode]))
+        res = wrapped_child_leafnodes
+
+    return res
