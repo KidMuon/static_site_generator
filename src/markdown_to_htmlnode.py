@@ -1,4 +1,5 @@
 from block_markdown import *
+import os
 
 def markdown_to_htmlnode(document):
     blocks = markdown_to_blocks(document)
@@ -49,5 +50,25 @@ def generate_page(from_path, template_path, dest_path):
 
     with open(dest_path, 'w') as f:
         f.write(html_page)
+
+    return None
+
+
+def generate_page_recursive(from_dir, template_path, dest_dir):
+
+    for file in os.listdir(from_dir):
+        print(f"searching {from_dir} found {file}")
+        cur_file_path = os.path.join(from_dir, file)
+        new_file_path = os.path.join(dest_dir, file)
+        if file.endswith('.md'):
+            generate_page(cur_file_path, template_path, new_file_path)
+        elif os.path.isfile(cur_file_path):
+            print(f"skipping {cur_file_path} not .md")
+            continue
+        else:
+            print(f"recursing into {cur_file_path}")
+            if not os.path.exists(new_file_path):
+                os.mkdir(new_file_path)
+            generate_page_recursive(cur_file_path, template_path, new_file_path)
 
     return None

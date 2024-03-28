@@ -1,22 +1,14 @@
 import os, shutil
 
-def recursive_copy(src, dest):
-    if os.path.exists(os.path.join(os.getcwd(), dest)):
-        shutil.rmtree(os.path.join(os.getcwd(), dest))
-        os.makedirs(dest)
+def recursive_copy(source_dir_path, dest_dir_path):
+    if not os.path.exists(dest_dir_path):
+        os.mkdir(dest_dir_path)
 
-    src_files = get_file_list(os.path.join(os.getcwd(), src))
-
-    for file in src_files:
-        shutil.copy(os.path.join(os.getcwd(), src, file), os.path.join(os.getcwd(), dest))
-
-    return None
-
-def get_file_list(path):
-    file_list = []
-    for file in os.listdir(path):
-        if os.path.isfile(os.path.join(path, file)):
-            file_list.append(file)
+    for filename in os.listdir(source_dir_path):
+        from_path = os.path.join(source_dir_path, filename)
+        dest_path = os.path.join(dest_dir_path, filename)
+        print(f" * {from_path} -> {dest_path}")
+        if os.path.isfile(from_path):
+            shutil.copy(from_path, dest_path)
         else:
-            file_list.extend(get_file_list(os.path.join(path, file)))
-    return file_list
+            recursive_copy(from_path, dest_path)

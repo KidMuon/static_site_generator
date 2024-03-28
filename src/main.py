@@ -4,7 +4,7 @@ import os
 
 def main():
     recursive_copy('static', 'public')
-    generate_page('content/index.md', 'template.html', 'public/index.html')
+    generate_page_recursive('content', 'template.html', 'public')
 
 
 if __name__ == "__main__":
