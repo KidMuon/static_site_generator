@@ -48,7 +48,7 @@ def generate_page(from_path, template_path, dest_path):
 
     html_page = template_document.replace('{{ Title }}', html_title).replace('{{ Content }}', html_contents.to_html())
 
-    with open(dest_path, 'w') as f:
+    with open(dest_path.replace('.md', '.html'), 'w') as f:
         f.write(html_page)
 
     return None

@@ -1,8 +1,9 @@
 from recursive_copy import recursive_copy
 from markdown_to_htmlnode import *
-import os
+import os, shutil
 
 def main():
+    shutil.rmtree('public')
     recursive_copy('static', 'public')
     generate_page_recursive('content', 'template.html', 'public')
 
